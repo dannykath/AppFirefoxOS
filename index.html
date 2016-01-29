@@ -1,54 +1,82 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1">
+<head>
+<meta charset=utf-8 />
+<title>Geolocalizacion </title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<script src='https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.js'></script>
+<link href='https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.css' rel='stylesheet' />
+<style>
+  body { margin:0; padding:0; }
+  #map { position:absolute; top:0; bottom:0; width:100%; }
+</style>
+</head>
+<body>
+<style>
+.ui-button {
+  background:#3887BE;
+  color:#FFF;
+  display:block;
+  position:absolute;
+  top:50%;left:50%;
+  width:160px;
+  margin:-20px 0 0 -80px;
+  z-index:100;
+  text-align:center;
+  padding:10px;
+  border:1px solid rgba(0,0,0,0.4);
+  border-radius:3px;
+  }
+  .ui-button:hover {
+    background:#3074a4;
+    color:#fff;
+    }
+</style>
 
-    <title>My first Application</title>
+<div id='map'></div>
+<a href='#' id='geolocate' class='ui-button'>Donde estoy?</a>
 
-    <style>
-      body {
-        display:block
-      
-      }
-      header{
-        display:inline
-          
-        
-      }
-      li
-      {
-        decoration:none
-      }
-    </style>
 
-    <script src="app.js" defer></script>
+<script>
+L.mapbox.accessToken = 'pk.eyJ1IjoiZGFubnlrYXRoIiwiYSI6InpQVFR4YnMifQ.75RM0RQILiSouwaJvaIq3g';
+var geolocate = document.getElementById('geolocate');
+var map = L.mapbox.map('map', 'mapbox.emerald');
+var myLayer = L.mapbox.featureLayer().addTo(map);
 
-  </head>
+if (!navigator.geolocation) {
+    geolocate.innerHTML = 'Ocurrieron algunos errores ';
+} else {
+    geolocate.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        map.locate();
+    };
+}
 
-  <body>
-    <h1>Bienvenido!</h1>
-    <nav>
-      <ul>
-        <li>Acerca de nosotros</li>
-        <li>Servicios que ofrecemos</li>
-        <li>Ejemplos de trabajo</li>    
-      </ul>
+map.on('locationfound', function(e) {
+    map.fitBounds(e.bounds);
 
-    </nav>
-   <a href="http://dannykath.github.io/LoginFacebook/location.html" target="_blank">Mostrar mi ubicacion</a>
+    myLayer.setGeoJSON({
+        type: 'Feature',
+        geometry: {
+            type: 'Point',
+            coordinates: [e.latlng.lng, e.latlng.lat]
+        },
+        properties: {
+            'title': 'Estoy aqui!',
+            'marker-color': '#ff8888',
+            'marker-symbol': 'rocket'
+        }
+    });
 
-    
-    
-    <header>
-      <ul>
-        <li>Contactanos </li>
-        <li>Todos los derechos reservados </li>
-     
-      </ul>
-    </header>  
-  </body>
-    
-    
 
+    geolocate.parentNode.removeChild(geolocate);
+});
+
+
+map.on('locationerror', function() {
+    geolocate.innerHTML = 'Lo sentimos :(, no te pudimos encontrar';
+});
+</script>
+</body>
 </html>
